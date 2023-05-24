@@ -15,12 +15,16 @@ class EmployeeController extends Controller
     {
         $pageTitle = 'Employee List';
         // RAW SQL QUERY
-        $employees = DB::select('select *, employees.id as employee_id, positions.name as position_name
-        from employees
-        left join positions on employees.position_id = positions.id
-        ');
+        // $employees = DB::select('select *, employees.id as employee_id, positions.name as position_name
+        // from employees
+        // left join positions on employees.position_id = positions.id
+        // ');
+        $employees = DB::table('employees')
+        ->select('*', 'employees.id as employee_id','positions.name as position_name')
+        ->leftJoin('positions', 'employees.position_id', '=', 'positions.id')
+        ->get();
 
-    return view('employee.index', compact('pageTitle', 'employees'));
+        return view('employee.index', compact('pageTitle', 'employees'));
     }
 
     /**
@@ -30,7 +34,9 @@ class EmployeeController extends Controller
     {
         $pageTitle = 'Create Employee';
        // RAW SQL Query
-        $positions = DB::select('select * from positions');
+        // $positions = DB::select('select * from positions');
+        //Query Builder
+        $positions = DB::table('positions')->get();
 
         return view('employee.create', compact('pageTitle', 'positions'));
     }
@@ -80,12 +86,17 @@ class EmployeeController extends Controller
         $pageTitle = 'Employee Detail';
 
         // RAW SQL QUERY
-        $employee = collect(DB::select('
-            select *, employees.id as employee_id, positions.name as position_name
-            from employees
-            left join positions on employees.position_id = positions.id
-            where employees.id = ?
-        ', [$id]))->first();
+        // $employee = collect(DB::select('
+        //     select *, employees.id as employee_id, positions.name as position_name
+        //     from employees
+        //     left join positions on employees.position_id = positions.id
+        //     where employees.id = ?
+        // ', [$id]))->first();
+        $employee = DB::table('employees')
+        ->select('*', 'employees.id as employee_id', 'positions.name as position_name')
+        ->leftJoin('positions', 'employees.position_id', '=', 'positions.id')
+        ->where('employees.id', '=', $id)
+        ->first();
 
         return view('employee.show', compact('pageTitle', 'employee'));
     }
@@ -95,7 +106,16 @@ class EmployeeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $pageTitle = 'Edit Employee';
+        $positions = DB::table('positions')->get();
+        $employee = collect(DB::select('
+            select *, employees.id as employee_id, positions.name as position_name
+            from employees
+            left join positions on employees.position_id = positions.id
+            where employees.id = ?
+        ', [$id]))->first();
+
+        return view('employee.edit', compact('pageTitle', 'positions', 'employee'));
     }
 
     /**
@@ -103,7 +123,18 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        DB::table('employees')
+        ->where('id', $id)
+        ->update([
+            'firstName' => $request->input('firstName'),
+            'lastName' => $request->input('lastName'),
+            'email' => $request->input('email'),
+            'age' => $request->input('age'),
+            'position_id' => $request->input('position')
+
+        ]);
+        return redirect()->route('employees.index');
+        return view('employee.index', compact('pageTitle', 'employee'));
     }
 
     /**

@@ -42,11 +42,11 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <label for="firstName" class="form-label">First Name</label>
-                        <h5>{{ $employee->firstname }}</h5>
+                        <h5>{{ $employee->firstName }}</h5>
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="lastName" class="form-label">Last Name</label>
-                        <h5>{{ $employee->lastname }}</h5>
+                        <h5>{{ $employee->lastName }}</h5>
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="email" class="form-label">Email</label>
